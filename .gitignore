@@ -1,6 +1,8 @@
 ### Custom
 .conf
 build
+archlinux/**
+!archlinux/PKGBUILD
 
 ### C++ template
 # Prerequisites
