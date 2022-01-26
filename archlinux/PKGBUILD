@@ -1,6 +1,6 @@
 pkgname=scrn_rotd-git
 pkgrel=1
-pkgver=8.7c43f31
+pkgver=9.0c7bfc0
 arch=('any')
 depends=('ddcutil' 'libx11')
 makedpends=('cmake' 'git')

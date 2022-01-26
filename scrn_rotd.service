@@ -2,7 +2,7 @@
 Description=Auto Screen Rotation Daemon
 
 [Service]
-ExecStart=/usr/bin/scrn_rotd $h/.scrn_rotd.conf
+ExecStart=/usr/bin/scrn_rotd %h/.scrn_rotd.conf
 
 [Install]
 WantedBy=default.target
