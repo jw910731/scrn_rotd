@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <X11/extensions/Xrandr.h>
+#include <fstream>
 
 #include "ddcutil_wrapper.h"
 #include "XWindows.h"
@@ -30,23 +31,25 @@ void int_handler(int){
 }
 
 int main(int argc, char** argv) {
-    if(argc < 3) {
-        std::cerr << argv[0] << ' ' << "<SN Number> <Screen Number>" << std::endl;
+    if(argc < 2) {
+        std::cerr << argv[0] << ' ' << "<config file>" << std::endl;
         return EXIT_FAILURE;
     }
-    char *err_ptr;
-    long screen_num = strtol(argv[2], &err_ptr, 10);
-    if(*err_ptr){
-        std::cerr << argv[0] << ' ' << "<SN Number> <Screen Number>" << std::endl;
+    long screen_num;
+    std::string SN_number;
+    std::fstream conf_fs(argv[1]);
+    if(!conf_fs.is_open()){
+        std::cerr << argv[0] << ' ' << "<config file>" << std::endl;
         return EXIT_FAILURE;
     }
+    conf_fs >> SN_number >> screen_num;
 
     display_identifier ident;
     display_ref dref;
     display_handle dh;
     DDCA_Status ddcastat;
     set_standard_settings();
-    ddcastat = ddca_create_mfg_model_sn_display_identifier(nullptr, nullptr, argv[1], &ident.val);
+    ddcastat = ddca_create_mfg_model_sn_display_identifier(nullptr, nullptr, SN_number.c_str(), &ident.val);
     if(ddcastat != 0){
         return EXIT_FAILURE;
     }

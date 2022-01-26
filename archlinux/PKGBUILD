@@ -1,0 +1,28 @@
+pkgname=scrn_rotd-git
+arch=('any')
+depends=('ddcutil' 'libx11')
+makedpends=('cmake' 'git')
+provides=('scrn_rotd')
+conflicts=('scrn_rotd')
+source=('${pkgname}::git+https://github.com/jw910731/scrn_rotd.git')
+sha512sums=('SKIP')
+
+pkgver() {
+    cd "${srcdir}/${pkgname}"
+    echo "$(git rev-list --count master).$(git rev-parse --short master)"
+}
+
+build() {
+    cd "${srcdir}/${pkgname}"
+    mkdir build
+    cd build
+    cmake ..
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}"
+    make install
+    mkdir -p /usr/lib/systemd/user/
+    cp scrn_rotd.service /usr/lib/systemd/user/
+}

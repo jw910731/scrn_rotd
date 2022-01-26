@@ -1,3 +1,7 @@
+### Custom
+.conf
+build
+
 ### C++ template
 # Prerequisites
 *.d
