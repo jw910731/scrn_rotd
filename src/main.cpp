@@ -4,8 +4,10 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <signal.h>
+#include <X11/extensions/Xrandr.h>
 
 #include "ddcutil_wrapper.h"
+#include "XWindows.h"
 
 static bool saved_report_ddc_errors = false;
 static bool saved_verify_setvcp = false;
@@ -28,10 +30,17 @@ void int_handler(int){
 }
 
 int main(int argc, char** argv) {
-    if(argc < 2) {
-        std::cerr << argv[0] << ' ' << "<SN Number>" << std::endl;
+    if(argc < 3) {
+        std::cerr << argv[0] << ' ' << "<SN Number> <Screen Number>" << std::endl;
         return EXIT_FAILURE;
     }
+    char *err_ptr;
+    long screen_num = strtol(argv[2], &err_ptr, 10);
+    if(*err_ptr){
+        std::cerr << argv[0] << ' ' << "<SN Number> <Screen Number>" << std::endl;
+        return EXIT_FAILURE;
+    }
+
     display_identifier ident;
     display_ref dref;
     display_handle dh;
@@ -50,8 +59,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    xdisplay display;
+    Window root = RootWindow(display.val, int(screen_num));
+    xscreen_config config(display, root);
+
     signal(SIGINT, int_handler);
 
+    Rotation prev_rot = RR_Rotate_0;
     for(;int_flag;) {
         DDCA_Non_Table_Vcp_Value valrec;
         // 0xAA is for orientation
@@ -60,12 +74,30 @@ int main(int argc, char** argv) {
             ddca_error_detail *err = ddca_get_error_detail();
             ddca_report_error_detail(err, 1);
             ddca_free_error_detail(err);
-            return EXIT_FAILURE;
+            continue;
         }
         uint16_t max_val = valrec.mh << 8 | valrec.ml;
         uint16_t cur_val = valrec.sh << 8 | valrec.sl;
-        std::cout << cur_val << std::endl;
-        sleep(1);
+        Rotation rot;
+        SizeID size = XRRConfigCurrentConfiguration(config.val, &rot);
+
+        switch(cur_val){
+            case 1:
+                if(rot != RR_Rotate_0){ // rotate screen
+                    std::cout << "Rotate horizon" << std::endl;
+                    XRRSetScreenConfig(display.val, config.val, root, size, RR_Rotate_0, CurrentTime);
+                }
+                break;
+            case 2:
+                if(rot != RR_Rotate_90){ // rotate screen
+                    std::cout << "Rotate vertical" << std::endl;
+                    XRRSetScreenConfig(display.val, config.val, root, size, RR_Rotate_90, CurrentTime);
+                }
+                break;
+            default:
+                break;
+        }
+        sleep(2);
     }
 
     restore_standard_settings();
