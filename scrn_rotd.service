@@ -1,5 +1,6 @@
 [Unit]
 Description=Auto Screen Rotation Daemon
+After=multi-user.target
 
 [Service]
 ExecStart=/usr/bin/scrn_rotd %h/.scrn_rotd.conf
