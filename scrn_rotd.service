@@ -4,6 +4,7 @@ After=multi-user.target
 
 [Service]
 ExecStart=/usr/bin/scrn_rotd %h/.scrn_rotd.conf
+Restart=on-failure
 
 [Install]
 WantedBy=default.target
