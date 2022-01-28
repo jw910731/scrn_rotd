@@ -64,12 +64,12 @@ int main(int argc, char** argv) {
 
     xdisplay display;
     Window root = RootWindow(display.val, int(screen_num));
-    xscreen_config config(display, root);
 
     signal(SIGINT, int_handler);
 
     Rotation prev_rot = RR_Rotate_0;
     for(;int_flag;) {
+        xscreen_config config(display, root);
         DDCA_Non_Table_Vcp_Value valrec;
         // 0xAA is for orientation
         ddcastat = ddca_get_non_table_vcp_value(dh, 0xAA, &valrec);
